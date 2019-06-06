@@ -1,6 +1,6 @@
 module
 
-using JuMP, Cairo, Gurobi, LightGraphs
+using JuMP, Cairo, Gurobi, LightGraphs, Colors
 
 struct canvas
 ## Measures in Pixels
@@ -14,13 +14,11 @@ mutable struct Layout
 end
 
 mutable struct Elements
-    nv::T where T <: Integer
+
     ne::T where T <: Integer
     v_labels::Vector{String}()
     e_labels::Vector{String}()
 end
-
-
 
 ## End Pkg
 ##--------
