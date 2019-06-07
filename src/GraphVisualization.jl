@@ -1,7 +1,9 @@
 module GraphVisualization
 
-include("annotatedgraph.jl")
+include("./annotatedgraph.jl")
 using JuMP, Cairo, Gurobi, LightGraphs, SimpleGraphs, Colors
+
+export AbstractAnnotatedGraph, AnnotatedSimpleGraph
 
 struct canvas
 ## Measures in Pixels
