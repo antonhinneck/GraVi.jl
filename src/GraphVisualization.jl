@@ -1,4 +1,4 @@
-module
+module GraphVisualization
 
 using JuMP, Cairo, Gurobi, LightGraphs, Colors
 
@@ -14,10 +14,9 @@ mutable struct Layout
 end
 
 mutable struct Elements
-
     ne::T where T <: Integer
-    v_labels::Vector{String}()
-    e_labels::Vector{String}()
+    v_labels::Vector{String}
+    e_labels::Vector{String}
 end
 
 ## End Pkg

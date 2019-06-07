@@ -1,3 +1,4 @@
+include("C:/Users/Anton Hinneck/.julia/packages/GraphVisualization/src/GraphVisualization.jl")
 using LightGraphs
 
 graph = SimpleGraph()
