@@ -24,3 +24,5 @@ end
 for i in edges(graph)
     print(src(i), dst(i), "\n")
 end
+
+grid = PowerGrids.get_datasets()[1]
