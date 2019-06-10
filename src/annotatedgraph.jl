@@ -1,5 +1,3 @@
-using LightGraphs: AbstractSimpleGraph
-
 abstract type AbstractAnnotatedGraph{G} end
 
 mutable struct AnnotatedSimpleGraph{G <: AbstractSimpleGraph} <: AbstractAnnotatedGraph{G}
