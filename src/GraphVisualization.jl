@@ -3,9 +3,10 @@ module GraphVisualization
 using JuMP, Cairo, Gurobi, Colors
 using LightGraphs: AbstractSimpleGraph
 
-export AbstractAnnotatedGraph, AnnotatedSimpleGraph
+export AbstractAnnotatedGraph, AnnotatedSimpleGraph, plot
 
 include("./annotatedgraph.jl")
+include("./plot.jl")
 
 struct canvas
 ## Measures in Pixels
