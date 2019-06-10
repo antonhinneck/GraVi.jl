@@ -1,4 +1,4 @@
-using SimpleGraphs, LightGraphs
+using LightGraphs: AbstractSimpleGraph
 
 abstract type AbstractAnnotatedGraph{G} end
 
