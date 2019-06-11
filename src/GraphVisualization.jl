@@ -1,11 +1,12 @@
 module GraphVisualization
 
 using JuMP, Cairo, Gurobi, Colors
-using LightGraphs: AbstractSimpleGraph
+using LightGraphs: AbstractSimpleGraph, vertices
 
 export AbstractAnnotatedGraph, AnnotatedSimpleGraph, plot
 
 include("./annotatedgraph.jl")
+include("./layout.jl")
 include("./plot.jl")
 
 struct canvas
