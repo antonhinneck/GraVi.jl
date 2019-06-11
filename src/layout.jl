@@ -1,7 +1,8 @@
-function build_layout(vertices)
+function build_layout(assets)
+
+    vertices = [i for i in 1:length(assets)]
 
     buildLayout = Model()
-    #TS = Model(solver = GLPKSolverMIP())
 
     @variable(buildLayout, pos_x[vertices] >= 0)
     @variable(buildLayout, pos_y[vertices] >= 0)
@@ -11,10 +12,13 @@ function build_layout(vertices)
     @variable(buildLayout, collsion_Y[vertices], Bin)
     @variable(buildLayout, adj_angle[vertices, vertices, 4], Bin)
 
-    @objective(TS, Min, sum(data.generator_costs[g] * generation[g] for g in data.generators))
+    @objective(buildLayout, Min, max_x + max_y)
 
-    @constraint(TS, market_clearing[n = data.busses],
-    sum(generation[g] for g in data.generators_at_bus[n]) + sum(power_flow_var[l] for l in data.lines_start_at_bus[n]) - sum(power_flow_var[l] for l in data.lines_end_at_bus[n]) == data.bus_demand[n])
+    @constraint(buildLayout, set_max_x[v = vertices],
+    pos_x[v] <= max_x)
+
+    @constraint(buildLayout, set_max_y[v = vertices],
+    pos_y[v] <= max_y)
 
     @constraint(TS, voltage_1[l = data.lines],
     (theta[data.line_start[l]] - theta[data.line_end[l]]) + (1 - switched[l]) * M >= power_flow_var[l] * data.line_reactance[l])
