@@ -17,7 +17,9 @@ function build_layout(assets)
         return maximum([sum_x, sum_y])
     end
 
-    M = get_M(assets)
+    M = get_M(assets) * 10
+
+    print(M,"\n")
 
     buildLayout = Model()
 
@@ -47,15 +49,20 @@ function build_layout(assets)
     pos_x[v1] + assets[v1][1] <= pos_x[v2] + collision_x[v1, v2] * M)
 
     @constraint(buildLayout, collision_x_2[v1 = vertices, v2 = vertices; v1 != v2],
-    pos_x[v1] - assets[v2][1] * (1 - collision_x[v1,v2]) * M >= pos_x[v2])
+    pos_x[v2] + assets[v2][1] <= pos_x[v1] + (1 - collision_x[v1, v2]) * M)
 
     @constraint(buildLayout, collision_y_1[v1 = vertices, v2 = vertices; v1 != v2],
     pos_y[v1] + assets[v1][1] <= pos_y[v2] + collision_y[v1, v2] * M)
 
     @constraint(buildLayout, collision_y_2[v1 = vertices, v2 = vertices; v1 != v2],
-    pos_y[v1] - assets[v2][1] * (1 - collision_y[v1,v2]) * M >= pos_y[v2])
+    pos_y[v2] + assets[v2][1] <= pos_y[v1] + (1 - collision_y[v1, v2]) * M)
 
-    status = optimize!(buildLayout, with_optimizer(Gurobi.Optimizer, OutputFlag = 1))
+    status = optimize!(buildLayout, with_optimizer(Gurobi.Optimizer, OutputFlag = 1, TimeLimit = 120))
+
+    print(value.(pos_x).data, "\n")
+    print(value.(pos_y).data, "\n")
+    print(value.(collision_x).data, "\n")
+    print(value.(collision_y).data, "\n")
 
     coordinates = Vector{Array{N where N <: Number, 1}}()
     return coordinates

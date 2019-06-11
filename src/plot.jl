@@ -8,23 +8,53 @@ function plot(AG, dims;
                 lvl2_font_size = 10,
                 lvl2_label_offset = 2)
 
-    if export_type == :pdf
-        export_dir = string(@__DIR__,"//test.pdf")
-        c = CairoPDFSurface(export_dir, dims[1], dims[2])
-    else
-        export_dir = string(@__DIR__,"//test.svg")
-        c = CairoSVGSurface(export_dir, dims[1], dims[2])
+    @inline function init_surface(export_dir, export_type, dims)
+        if export_type == :pdf
+            export_dir = string(@__DIR__,"//test.pdf")
+            c = CairoPDFSurface(export_dir, dims[1], dims[2])
+            cr = CairoContext(c)
+            select_font_face(cr, "Times", 1, 1)
+            set_font_size(cr, lvl1_font_size)
+        else
+            export_dir = string(@__DIR__,"//test.svg")
+            c = CairoSVGSurface(export_dir, dims[1], dims[2])
+            cr = CairoContext(c)
+            select_font_face(cr, "Times", 1, 1)
+            set_font_size(cr, lvl1_font_size)
+        end
+        return c, cr
     end
 
-    text = "peace"
-    cr = CairoContext(c)
-    select_font_face(cr, "Times", 1, 1)
-    set_font_size(cr, lvl1_font_size)
+    c, cr = init_surface(export_dir, export_type, dims)
+
+    text = "test"
     txt_exts = text_extents(cr, text)
     # 1: x_bearing
     # 2: y_bearing
     # 3: width
     # 4: height
+    # Probe dimensions
+    max_el_heigth = maximum([
+                                lvl1_node_radius * 2,
+                                lvl2_node_radius * 2,
+                                text_exts[4]]
+                            )
+
+    for i in vertices(AG.Graph)
+        max_x = 0
+        max_y = 0
+        text_dims = text_extents(cr, AG.VertexLabels[i])
+        if text_dims[3] > max_x
+            max_x = text_dims[3]
+        end
+        if text_dims[4] > max_y
+            max_y = text_dims[4]
+        end
+    end
+
+    if el_height * (maximum(vertices(AG.Graph)) / 2 + 1)
+
+    end
 
     # Preprocessing Assets
     #---------------------
@@ -46,7 +76,11 @@ function plot(AG, dims;
         push!(assets_nodes, [width, height, level])
     end
 
-    coordinates = build_layout(assets_nodes)
+    for i in vertices(AG.Graph)
+
+    end
+
+    #coordinates = build_layout(assets_nodes)
 
     print(assets_nodes)
     pos = [0,0]
