@@ -1,12 +1,14 @@
-function build_layout(elements)
+function build_layout(nodes)
 
     buildLayout = Model()
     #TS = Model(solver = GLPKSolverMIP())
 
     @variable(buildLayout, pos_x[element_groups] >= 0)
     @variable(buildLayout, pos_y[element_groups] >= 0)
-    @variable(buildLayout, pos_x[elements] >= 0)
-    @variable(buildLayout, pos_y[elements] >= 0)
+    @variable(buildLayout, max_x >= 0)
+    @variable(buildLayout, max_y >= 0)
+    @variable(buildLayout, collsion_x[elements], Bin)
+    @variable(buildLayout, collsion_Y[elements], Bin)
     @variable(buildLayout, adj_angle[elements, elements, 4])
 
     @objective(TS, Min, sum(data.generator_costs[g] * generation[g] for g in data.generators))
@@ -19,5 +21,6 @@ function build_layout(elements)
 
     status = optimize!(TS, with_optimizer(Gurobi.Optimizer, OutputFlag = 0))
 
-    return layout
+    coordinates = Vector{N where I <: Number, N where I <: Number}
+    return coordinates
 end
