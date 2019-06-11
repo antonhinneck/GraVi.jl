@@ -33,27 +33,30 @@ function plot(AG, dims;
     # 2: y_bearing
     # 3: width
     # 4: height
-    # Probe dimensions
-    max_el_heigth = maximum([
-                                lvl1_node_radius * 2,
-                                lvl2_node_radius * 2,
-                                text_exts[4]]
-                            )
 
-    for i in vertices(AG.Graph)
+    # Probe surface dimensions
+    #-------------------------
+    @inline function max_dims(AG, lvl1_node_radius, lvl2_node_radius)
         max_x = 0
-        max_y = 0
-        text_dims = text_extents(cr, AG.VertexLabels[i])
-        if text_dims[3] > max_x
-            max_x = text_dims[3]
+        max_y = maximum([lvl1_node_radius, lvl2_node_radius])
+        for i in vertices(AG.Graph)
+            text_dims = text_extents(cr, AG.VertexLabels[i])
+            if text_dims[3] > max_x
+                max_x = text_dims[3]
+            end
+            if text_dims[4] > max_y
+                max_y = text_dims[4]
+            end
         end
-        if text_dims[4] > max_y
-            max_y = text_dims[4]
-        end
+        return [max_x, max_y]
     end
 
-    if el_height * (maximum(vertices(AG.Graph)) / 2 + 1)
+    max_vertex_dims = max_dims(AG, lvl1_node_radius, lvl2_node_radius)
+    height_estimate = max_vertex_dims[2] * (maximum(vertices(AG.Graph)) / 2 + 1)
+    width_estimate = max_vertex_dims[2] * (maximum(vertices(AG.Graph)) / 2 + 1)
 
+    if  > dims[2]
+        c, cr = init_surface(export_dir, export_type, [dims])
     end
 
     # Preprocessing Assets
