@@ -25,11 +25,11 @@ function build_layout(assets)
     @variable(buildLayout, pos_y[vertices] >= 0)
     @variable(buildLayout, max_x >= 0)
     @variable(buildLayout, max_y >= 0)
-    @variable(buildLayout, collsion_x[vertices, vertices], Bin)
+    @variable(buildLayout, collision_x[vertices, vertices], Bin)
     # 0: First element displayed at a lower x-index
     # 1: Second element displayed at a lower x-index
     #-----------------------------------------------
-    @variable(buildLayout, collsion_y[vertices, vertices], Bin)
+    @variable(buildLayout, collision_y[vertices, vertices], Bin)
     # 0: First element displayed at a lower y-index
     # 1: Second element displayed at a lower y-index
     #-----------------------------------------------
@@ -55,8 +55,8 @@ function build_layout(assets)
     @constraint(buildLayout, collision_y_2[v1 = vertices, v2 = vertices; v1 != v2],
     pos_y[v1] - assets[v2][1] * (1 - collision_y[v1,v2]) * M >= pos_y[v2])
 
-    status = optimize!(TS, with_optimizer(Gurobi.Optimizer, OutputFlag = 0))
+    status = optimize!(buildLayout, with_optimizer(Gurobi.Optimizer, OutputFlag = 1))
 
-    coordinates = Vector{N where I <: Number, N where I <: Number}
+    coordinates = Vector{Array{N where N <: Number, 1}}()
     return coordinates
 end
