@@ -1,4 +1,9 @@
 function build_layout(assets)
+## Function contains MILP to generate a set of feasible
+## 2D coordinates for all passed assets.
+##---------------------------------------------------------
+## To Do: Try differnet solvers - current default is Gurobi
+##---------------------------------------------------------
 
     vertices = [i for i in 1:length(assets)]
 
