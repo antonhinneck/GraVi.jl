@@ -8,8 +8,14 @@ function build_layout(assets)
     @variable(buildLayout, pos_y[vertices] >= 0)
     @variable(buildLayout, max_x >= 0)
     @variable(buildLayout, max_y >= 0)
-    @variable(buildLayout, collsion_x[vertices], Bin)
-    @variable(buildLayout, collsion_Y[vertices], Bin)
+    @variable(buildLayout, collsion_x[vertices, vertices], Bin)
+    # 1: First element displayed at a lower x-index
+    # 2: Second element displayed at a lower x-index
+    #-----------------------------------------------
+    @variable(buildLayout, collsion_y[vertices, vertices], Bin)
+    # 1: First element displayed at a lower y-index
+    # 2: Second element displayed at a lower y-index
+    #-----------------------------------------------
     @variable(buildLayout, adj_angle[vertices, vertices, 4], Bin)
 
     @objective(buildLayout, Min, max_x + max_y)
@@ -20,8 +26,14 @@ function build_layout(assets)
     @constraint(buildLayout, set_max_y[v = vertices],
     pos_y[v] <= max_y)
 
-    @constraint(TS, voltage_1[l = data.lines],
-    (theta[data.line_start[l]] - theta[data.line_end[l]]) + (1 - switched[l]) * M >= power_flow_var[l] * data.line_reactance[l])
+    @constraint(buildLayout, collision_x_1[v1 = vertices, v2 = vertices],
+    pos_x[v1] + assets[v1][1] <= pos_x[v2])
+
+    @constraint(buildLayout, collision_x_2[v1 = vertices, v2 = vertices],
+    pos_x[v1] + assets[v1][1] <= pos_x[v2])
+
+    @constraint(buildLayout, set_max_y[v1 = vertices, v2 = vertices],
+    pos_x[v1] <= pos_x[v2])
 
     status = optimize!(TS, with_optimizer(Gurobi.Optimizer, OutputFlag = 0))
 
