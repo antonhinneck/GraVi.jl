@@ -1,15 +1,15 @@
-function build_layout(nodes)
+function build_layout(vertices)
 
     buildLayout = Model()
     #TS = Model(solver = GLPKSolverMIP())
 
-    @variable(buildLayout, pos_x[element_groups] >= 0)
-    @variable(buildLayout, pos_y[element_groups] >= 0)
+    @variable(buildLayout, pos_x[vertices] >= 0)
+    @variable(buildLayout, pos_y[vertices] >= 0)
     @variable(buildLayout, max_x >= 0)
     @variable(buildLayout, max_y >= 0)
-    @variable(buildLayout, collsion_x[elements], Bin)
-    @variable(buildLayout, collsion_Y[elements], Bin)
-    @variable(buildLayout, adj_angle[elements, elements, 4])
+    @variable(buildLayout, collsion_x[vertices], Bin)
+    @variable(buildLayout, collsion_Y[vertices], Bin)
+    @variable(buildLayout, adj_angle[vertices, vertices, 4], Bin)
 
     @objective(TS, Min, sum(data.generator_costs[g] * generation[g] for g in data.generators))
 
