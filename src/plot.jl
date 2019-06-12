@@ -1,12 +1,19 @@
 function plot(AG, dims;
                 export_type = :svg,
                 export_dir = "C://Users",
-                lvl1_node_radius = 5,
-                lvl1_font_size = 10,
-                lvl1_label_offset = 2,
+                lvl1_node_radius = 2,
+                lvl1_font_size = 8,
+                lvl1_label_offset = 4,
                 lvl2_node_radius = 5,
                 lvl2_font_size = 10,
-                lvl2_label_offset = 2)
+                lvl2_label_offset = 4,
+                legend_height = 100)
+
+    center = dims / 2
+    plot_border_top = dims[2]
+    plot_border_bottom = 0
+    plot_border_left = dims[1]
+    plot_border_right = 0
 
     @inline function init_surface(export_dir, export_type, dims)
         if export_type == :pdf
@@ -55,8 +62,18 @@ function plot(AG, dims;
     height_estimate = max_vertex_dims[2] * (maximum(vertices(AG.Graph)) / 2 + 1)
     width_estimate = max_vertex_dims[2] * (maximum(vertices(AG.Graph)) / 2 + 1)
 
-    if  > dims[2]
-        c, cr = init_surface(export_dir, export_type, [dims])
+    if (width_estimate > dims[1]) && !(height_estimate > dims[2])
+        print("\nINFO: Resizing Surface.\n")
+        dims = [width_estimate, dims[2]]
+        c, cr = init_surface(export_dir, export_type, dims)
+    elseif  !(width_estimate > dims[1]) && (height_estimate > dims[2])
+        print("\nINFO: Resizing Surface.\n")
+        dims = [dims[1], height_estimate]
+        c, cr = init_surface(export_dir, export_type, dims)
+    elseif  (width_estimate > dims[1]) && (height_estimate > dims[2])
+        print("\nINFO: Resizing Surface.\n")
+        dims = [width_estimate, height_estimate]
+        c, cr = init_surface(export_dir, export_type, dims)
     end
 
     # Preprocessing Assets
@@ -79,19 +96,104 @@ function plot(AG, dims;
         push!(assets_nodes, [width, height, level])
     end
 
+    @inline function _vertex_positions_inner(lvl1_ratio = 0.5, lvl2_ratio = 0.8, switch=1)
+
+        lvl1_nv = 0
+        for i in vertices(AG.Graph)
+            if AG.VertexTypes[i] == 1
+                lvl1_nv += 1
+            end
+        end
+
+        degrees = 2 * pi
+        degree_sections = degrees / lvl1_nv
+        lvl1_radius = dims[1] / 2 * lvl1_ratio
+        lvl2_radius = dims[1] / 2 * lvl2_ratio
+        positions = Vector{Tuple{Float64, Float64}}()
+
+        counter_lvl1_vertex = 0
+        for i in vertices(AG.Graph)
+            if AG.VertexTypes[i] == 1
+                push!(positions, Tuple([cos(degree_sections * counter_lvl1_vertex) * lvl1_radius + center[1]
+                                        sin(degree_sections * counter_lvl1_vertex) * lvl1_radius + center[2]]))
+                counter_lvl1_vertex += 1
+            elseif AG.VertexTypes[i] == 2
+                print(i)
+                print(AG.Graph.fadjlist[i],"\n")
+                sub_degree_sections = degree_sections / length(AG.Graph.fadjlist[i])
+                push!(positions, Tuple([cos(degree_sections * length(AG.Graph.fadjlist[i])) * lvl2_radius + center[1]
+                                        sin(degree_sections * length(AG.Graph.fadjlist[i])) * lvl2_radius + center[2]]))
+            end
+        end
+
+        print(positions)
+        return positions
+    end
+
+    vertex_positions = _vertex_positions_inner()
+
+    nv = maximum(vertices(AG.Graph))
+
     for i in vertices(AG.Graph)
 
+        (pos_x, pos_y) = vertex_positions[i]
+        set_source_rgb(cr, [0.0,0.0,0.0]...)
+        move_to(cr, pos_x, pos_y) # Prevents artifacts in the exported pdf file
+        circle(cr, pos_x, pos_y, lvl1_node_radius)
+        fill(cr)
+        text = string(i)
+        label_extents = text_extents(cr, text)
+
+        #set_source_rgb(cr, wireplot_node_label_font_color...)
+
+        if round(Int, pos_x) == center[1] && pos_y > center[2]
+            label_origin_x = pos_x - label_extents[3] / 2 - 1
+            label_origin_y = pos_y + lvl1_node_radius / 2 + label_extents[4] + lvl1_label_offset
+            label_border_left = pos_x - label_extents[3] / 2 - 1
+            label_border_right = label_origin_x + label_extents[3]
+            label_border_top = label_origin_y + label_extents[4]
+            label_border_bottom = label_origin_y
+        elseif round(Int, pos_x) == center[1] && pos_y < center[2]
+            label_origin_x = pos_x - label_extents[3] / 2 - 1
+            label_origin_y = pos_y - lvl1_node_radius / 2 - lvl1_label_offset
+            label_border_left = pos_x - label_extents[3] / 2 - 1
+            label_border_right = label_origin_x + label_extents[3]
+            label_border_top = label_origin_y + label_extents[4]
+            label_border_bottom = label_origin_y
+        elseif pos_x < center[1]
+            label_origin_x = pos_x - lvl1_node_radius / 2 - label_extents[3] - lvl1_label_offset
+            label_origin_y = pos_y + label_extents[4] / 2 + sin(((i - 1) * 2 * pi) / nv) * (lvl1_label_offset + lvl1_node_radius / 2 + label_extents[4] / 2)
+            label_border_left = label_origin_x
+            label_border_right = label_origin_x + label_extents[3]
+            label_border_top = label_origin_y + label_extents[4]
+            label_border_bottom = label_origin_y
+        elseif pos_x > center[1]
+            label_origin_x = pos_x + lvl1_node_radius / 2 + lvl1_node_radius / 2 + lvl1_label_offset
+            label_origin_y = pos_y + label_extents[4] / 2 + sin(((i - 1) * 2 * pi) / nv) * (lvl1_label_offset + lvl1_node_radius / 2 + label_extents[4] / 2)
+            label_border_left = label_origin_x
+            label_border_right = label_origin_x + label_extents[3]
+            label_border_top = label_origin_y + label_extents[4]
+            label_border_bottom = label_origin_y
+        end
+
+        move_to(cr, label_origin_x, label_origin_y)
+        show_text(cr, text)
+        plot_border_bottom = max(plot_border_bottom, label_border_bottom)
+        plot_border_right = max(plot_border_right, label_border_right)
+        plot_border_top = min(plot_border_top, label_border_top)
+        plot_border_left = min(plot_border_left, label_border_left)
     end
 
     #coordinates = build_layout(assets_nodes)
 
-    print(assets_nodes)
-    pos = [0,0]
-    set_source_rgb(cr, [0.0,0.0,0.0]...)
-    circle(cr, pos[1] + lvl1_node_radius, pos[2] + lvl1_node_radius, lvl1_node_radius)
-    fill(cr)
-    move_to(cr, pos[1] + 2 * lvl1_node_radius + lvl1_label_offset, pos[2] + txt_exts[4])
-    show_text(cr, text)
+    #print(assets_nodes)
+
+    #pos = [0,0]
+    #set_source_rgb(cr, [0.0,0.0,0.0]...)
+    #circle(cr, pos[1] + lvl1_node_radius, pos[2] + lvl1_node_radius, lvl1_node_radius)
+    #fill(cr)
+    #move_to(cr, pos[1] + 2 * lvl1_node_radius + lvl1_label_offset, pos[2] + txt_exts[4])
+    #show_text(cr, text)
 
     finish(c)
 
