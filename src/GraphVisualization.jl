@@ -1,7 +1,7 @@
 module GraphVisualization
 
 using JuMP, Cairo, Gurobi, Colors
-using LightGraphs: AbstractSimpleGraph, vertices
+using LightGraphs: AbstractSimpleGraph, vertices, degree, edges, src, dst
 
 export AbstractAnnotatedGraph, AnnotatedSimpleGraph, plot
 

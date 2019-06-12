@@ -7,7 +7,9 @@ function plot(AG, dims;
                 lvl2_node_radius = 5,
                 lvl2_font_size = 10,
                 lvl2_label_offset = 4,
-                legend_height = 100)
+                legend_height = 100,
+                jitter = 0,
+                line_width = 0.25)
 
     center = dims / 2
     plot_border_top = dims[2]
@@ -96,7 +98,7 @@ function plot(AG, dims;
         push!(assets_nodes, [width, height, level])
     end
 
-    @inline function _vertex_positions_inner(lvl1_ratio = 0.5, lvl2_ratio = 0.8, switch=1)
+    @inline function _vertex_positions_inner(lvl1_ratio = 0.4, lvl2_ratio = 0.6, switch=1)
 
         lvl1_nv = 0
         for i in vertices(AG.Graph)
@@ -118,22 +120,37 @@ function plot(AG, dims;
                                         sin(degree_sections * counter_lvl1_vertex) * lvl1_radius + center[2]]))
                 counter_lvl1_vertex += 1
             elseif AG.VertexTypes[i] == 2
-                print(i)
-                print(AG.Graph.fadjlist[i],"\n")
                 sub_degree_sections = degree_sections / length(AG.Graph.fadjlist[i])
-                push!(positions, Tuple([cos(degree_sections * length(AG.Graph.fadjlist[i])) * lvl2_radius + center[1]
-                                        sin(degree_sections * length(AG.Graph.fadjlist[i])) * lvl2_radius + center[2]]))
+                push!(positions, Tuple([cos(degree_sections * AG.Graph.fadjlist[i][1]) * lvl2_radius + center[1]
+                                        sin(degree_sections * AG.Graph.fadjlist[i][1]) * lvl2_radius + center[2]]))
             end
         end
 
-        print(positions)
         return positions
     end
 
     vertex_positions = _vertex_positions_inner()
 
-    nv = maximum(vertices(AG.Graph))
+    ## PLOT EDGES
+    ##-----------
+    degs = degree(AG.Graph)
+    for (i, e) in enumerate(edges(AG.Graph))
+        (s, d) = (src(e), dst(e))
 
+        set_line_width(cr, line_width)
+        if AG.VertexTypes[s] == 1 && AG.VertexTypes[d] == 1
+            curve_to(cr, vertex_positions[s][1], vertex_positions[s][2],
+                center[1],
+                center[2],
+                vertex_positions[d][1], vertex_positions[d][2])
+            stroke(cr)
+        end
+    end
+    set_line_width(cr, 1)
+
+    ## PLOT VERTICES
+    ## -------------
+    nv = maximum(vertices(AG.Graph))
     for i in vertices(AG.Graph)
 
         (pos_x, pos_y) = vertex_positions[i]
