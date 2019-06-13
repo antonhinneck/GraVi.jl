@@ -1,10 +1,10 @@
 function plot(AG, dims;
                 export_type = :svg,
                 export_dir = "C://Users",
-                lvl1_node_radius = 2,
-                lvl1_font_size = 8,
-                lvl1_label_offset = 4,
-                lvl2_node_radius = 5,
+                lvl1_node_radius = 1.2,
+                lvl1_font_size = 3.6,
+                lvl1_label_offset = 1.4,
+                lvl2_node_radius = 0.6,
                 lvl2_font_size = 10,
                 lvl2_label_offset = 4,
                 legend_height = 100,
@@ -98,7 +98,7 @@ function plot(AG, dims;
         push!(assets_nodes, [width, height, level])
     end
 
-    @inline function _vertex_positions_inner(lvl1_ratio = 0.4, lvl2_ratio = 0.6, switch=1)
+    @inline function _vertex_positions_inner(lvl1_ratio = 0.58, lvl2_ratio = 0.8, switch=1)
 
         lvl1_nv = 0
         for i in vertices(AG.Graph)
@@ -113,6 +113,16 @@ function plot(AG, dims;
         lvl2_radius = dims[1] / 2 * lvl2_ratio
         positions = Vector{Tuple{Float64, Float64}}()
 
+        set_line_width(cr, 0.2)
+        set_source_rgb(cr, [0,0,0]...)
+        circle(cr, center[1], center[2], lvl1_radius)
+        stroke(cr)
+
+        set_line_width(cr, 0.2)
+        set_source_rgb(cr, [0,0,0]...)
+        circle(cr, center[1], center[2], lvl2_radius)
+        stroke(cr)
+
         counter_lvl1_vertex = 0
         for i in vertices(AG.Graph)
             if AG.VertexTypes[i] == 1
@@ -121,8 +131,8 @@ function plot(AG, dims;
                 counter_lvl1_vertex += 1
             elseif AG.VertexTypes[i] == 2
                 sub_degree_sections = degree_sections / length(AG.Graph.fadjlist[i])
-                push!(positions, Tuple([cos(degree_sections * AG.Graph.fadjlist[i][1]) * lvl2_radius + center[1]
-                                        sin(degree_sections * AG.Graph.fadjlist[i][1]) * lvl2_radius + center[2]]))
+                push!(positions, Tuple([cos(degree_sections * (counter_lvl1_vertex - 1)) * lvl2_radius + center[1]
+                                        sin(degree_sections * (counter_lvl1_vertex - 1)) * lvl2_radius + center[2]]))
             end
         end
 
@@ -139,10 +149,19 @@ function plot(AG, dims;
 
         set_line_width(cr, line_width)
         if AG.VertexTypes[s] == 1 && AG.VertexTypes[d] == 1
+            set_line_width(cr, 0.2)
+            set_source_rgb(cr, [76, 156, 255] / 255 ...)
             curve_to(cr, vertex_positions[s][1], vertex_positions[s][2],
                 center[1],
                 center[2],
                 vertex_positions[d][1], vertex_positions[d][2])
+            stroke(cr)
+        end
+        if AG.VertexTypes[s] == 2 || AG.VertexTypes[d] == 2
+            set_line_width(cr, 0.35)
+            set_source_rgb(cr, [0, 49, 191] / 255 ...)
+            move_to(cr, vertex_positions[s][1], vertex_positions[s][2])
+            line_to(cr, vertex_positions[d][1], vertex_positions[d][2])
             stroke(cr)
         end
     end
@@ -154,11 +173,22 @@ function plot(AG, dims;
     for i in vertices(AG.Graph)
 
         (pos_x, pos_y) = vertex_positions[i]
-        set_source_rgb(cr, [0.0,0.0,0.0]...)
         move_to(cr, pos_x, pos_y) # Prevents artifacts in the exported pdf file
+
+        set_source_rgb(cr, [1,1,1]...)
         circle(cr, pos_x, pos_y, lvl1_node_radius)
         fill(cr)
-        text = string(i)
+
+        set_source_rgb(cr, [0.0,0.0,0.0]...)
+        set_line_width(cr, 0.2)
+        circle(cr, pos_x, pos_y, lvl1_node_radius)
+        stroke(cr)
+
+        if AG.VertexTypes[i] == 2
+            text = AG.VertexLabels[i]
+        else
+            text = string(i)
+        end
         label_extents = text_extents(cr, text)
 
         #set_source_rgb(cr, wireplot_node_label_font_color...)
