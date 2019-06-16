@@ -18,6 +18,4 @@ function layout(resolution::Array{Int64,1};
                 legend::Bool = true,
                 legend_position::Symbol = :below)
 
-
-
 end

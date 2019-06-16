@@ -227,9 +227,9 @@ function plot(AG, dims;
             label_border_top = label_origin_y + label_extents[4]
             label_border_bottom = label_origin_y
         end
-
-        move_to(cr, label_origin_x, label_origin_y)
+        move_to(cr, center...)
         rotate(cr, _vertex_angles[i])
+        move_to(cr, label_origin_x, label_origin_y)
         show_text(cr, text)
         plot_border_bottom = max(plot_border_bottom, label_border_bottom)
         plot_border_right = max(plot_border_right, label_border_right)
