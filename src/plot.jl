@@ -9,13 +9,16 @@ function plot(AG, dims;
                 lvl2_label_offset = 4,
                 legend_height = 100,
                 jitter = 0,
-                line_width = 0.25)
+                line_width = 0.25,
+                legend = false)
 
+    layout = layout(dims)
     center = dims / 2
     plot_border_top = dims[2]
     plot_border_bottom = 0
     plot_border_left = dims[1]
     plot_border_right = 0
+    _vertex_angles = Vector{Int64}()
 
     @inline function init_surface(export_dir, export_type, dims)
         if export_type == :pdf
@@ -129,10 +132,12 @@ function plot(AG, dims;
                 push!(positions, Tuple([cos(degree_sections * counter_lvl1_vertex) * lvl1_radius + center[1]
                                         sin(degree_sections * counter_lvl1_vertex) * lvl1_radius + center[2]]))
                 counter_lvl1_vertex += 1
+                push!(_vertex_angles, degree_sections * counter_lvl1_vertex)
             elseif AG.VertexTypes[i] == 2
                 sub_degree_sections = degree_sections / length(AG.Graph.fadjlist[i])
                 push!(positions, Tuple([cos(degree_sections * (counter_lvl1_vertex - 1)) * lvl2_radius + center[1]
                                         sin(degree_sections * (counter_lvl1_vertex - 1)) * lvl2_radius + center[2]]))
+                push!(_vertex_angles, degree_sections * (counter_lvl1_vertex - 1))
             end
         end
 
@@ -224,7 +229,8 @@ function plot(AG, dims;
         end
 
         move_to(cr, label_origin_x, label_origin_y)
-        show_text(cr, text)
+        rotate(cr, text)
+        show_text(cr, _vertex_angles[i])
         plot_border_bottom = max(plot_border_bottom, label_border_bottom)
         plot_border_right = max(plot_border_right, label_border_right)
         plot_border_top = min(plot_border_top, label_border_top)
