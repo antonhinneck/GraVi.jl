@@ -18,7 +18,7 @@ function plot(AG, dims;
     plot_border_bottom = 0
     plot_border_left = dims[1]
     plot_border_right = 0
-    _vertex_angles = Vector{Int64}()
+    _vertex_angles = Vector{Float64}()
 
     @inline function init_surface(export_dir, export_type, dims)
         if export_type == :pdf
