@@ -12,7 +12,7 @@ function plot(AG, dims;
                 line_width = 0.25,
                 legend = false)
 
-    layout = layout(dims)
+    #layout = layout(dims)
     center = dims / 2
     plot_border_top = dims[2]
     plot_border_bottom = 0
