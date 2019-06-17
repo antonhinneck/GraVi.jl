@@ -2,15 +2,16 @@ function plot(AG, dims;
                 export_type = :svg,
                 export_dir = "C://Users",
                 lvl1_node_radius = 1.2,
-                lvl1_font_size = 3.6,
-                lvl1_label_offset = 1.4,
+                lvl1_font_size = 2.4,
+                lvl1_label_offset = 1.8,
                 lvl2_node_radius = 0.6,
                 lvl2_font_size = 10,
                 lvl2_label_offset = 4,
                 legend_height = 100,
                 jitter = 0,
                 line_width = 0.25,
-                legend = false)
+                legend = false,
+                label_offset_orthogonal = 1)
 
     #layout = layout(dims)
     center = dims / 2
@@ -116,6 +117,7 @@ function plot(AG, dims;
         lvl2_radius = dims[1] / 2 * lvl2_ratio
         positions = Vector{Tuple{Float64, Float64}}()
 
+        #=
         set_line_width(cr, 0.2)
         set_source_rgb(cr, [0,0,0]...)
         circle(cr, center[1], center[2], lvl1_radius)
@@ -125,6 +127,7 @@ function plot(AG, dims;
         set_source_rgb(cr, [0,0,0]...)
         circle(cr, center[1], center[2], lvl2_radius)
         stroke(cr)
+        =#
 
         counter_lvl1_vertex = 0
         for i in vertices(AG.Graph)
@@ -154,7 +157,7 @@ function plot(AG, dims;
 
         set_line_width(cr, line_width)
         if AG.VertexTypes[s] == 1 && AG.VertexTypes[d] == 1
-            set_line_width(cr, 0.2)
+            set_line_width(cr, 0.35)
             set_source_rgb(cr, [76, 156, 255] / 255 ...)
             curve_to(cr, vertex_positions[s][1], vertex_positions[s][2],
                 center[1],
@@ -203,43 +206,30 @@ function plot(AG, dims;
             text = string(i)
         end
         label_extents = text_extents(cr, text)
-
+        angle = _vertex_angles[i]
         #set_source_rgb(cr, wireplot_node_label_font_color...)
 
-        if round(Int, pos_x) == center[1] && pos_y > center[2]
-            label_origin_x = pos_x - label_extents[3] / 2 - 1
-            label_origin_y = pos_y + lvl1_node_radius / 2 + label_extents[4] + lvl1_label_offset
+        if angle >= (pi / 2) && angle < (3 * pi / 2)
+            label_origin_x = pos_x - (lvl1_label_offset + lvl1_node_radius / 2) * cos(_vertex_angles[i]) - label_offset_orthogonal * sin(pi - _vertex_angles[i])
+            label_origin_y = pos_y - (lvl1_label_offset + lvl1_node_radius / 2) * sin(_vertex_angles[i]) - label_offset_orthogonal * cos(pi - _vertex_angles[i])
             label_border_left = pos_x - label_extents[3] / 2 - 1
             label_border_right = label_origin_x + label_extents[3]
             label_border_top = label_origin_y + label_extents[4]
             label_border_bottom = label_origin_y
-        elseif round(Int, pos_x) == center[1] && pos_y < center[2]
-            label_origin_x = pos_x - label_extents[3] / 2 - 1
-            label_origin_y = pos_y - lvl1_node_radius / 2 - lvl1_label_offset
+        else
+            label_origin_x = pos_x - (label_extents[3] + lvl1_label_offset + lvl1_node_radius / 2) * cos(_vertex_angles[i]) + label_offset_orthogonal * sin(pi - _vertex_angles[i])
+            label_origin_y = pos_y - (label_extents[3] + lvl1_label_offset + lvl1_node_radius / 2) * sin(_vertex_angles[i]) + label_offset_orthogonal * cos(pi - _vertex_angles[i])
             label_border_left = pos_x - label_extents[3] / 2 - 1
-            label_border_right = label_origin_x + label_extents[3]
-            label_border_top = label_origin_y + label_extents[4]
-            label_border_bottom = label_origin_y
-        elseif pos_x < center[1]
-            label_origin_x = pos_x - lvl1_node_radius / 2 - label_extents[3] - lvl1_label_offset
-            label_origin_y = pos_y + label_extents[4] / 2 + sin(((i - 1) * 2 * pi) / nv) * (lvl1_label_offset + lvl1_node_radius / 2 + label_extents[4] / 2)
-            label_border_left = label_origin_x
-            label_border_right = label_origin_x + label_extents[3]
-            label_border_top = label_origin_y + label_extents[4]
-            label_border_bottom = label_origin_y
-        elseif pos_x > center[1]
-            label_origin_x = pos_x + lvl1_node_radius / 2 + lvl1_node_radius / 2 + lvl1_label_offset
-            label_origin_y = pos_y + label_extents[4] / 2 + sin(((i - 1) * 2 * pi) / nv) * (lvl1_label_offset + lvl1_node_radius / 2 + label_extents[4] / 2)
-            label_border_left = label_origin_x
             label_border_right = label_origin_x + label_extents[3]
             label_border_top = label_origin_y + label_extents[4]
             label_border_bottom = label_origin_y
         end
 
-        move_to(cr, center...)
-        #move_to(cr, label_origin_x, label_origin_y)
+        move_to(cr, label_origin_x, label_origin_y)
         rotate(cr, flip_angle(_vertex_angles[i]))
+        show_text(cr, text)
         rotate(cr, -flip_angle(_vertex_angles[i]))
+
         plot_border_bottom = max(plot_border_bottom, label_border_bottom)
         plot_border_right = max(plot_border_right, label_border_right)
         plot_border_top = min(plot_border_top, label_border_top)
