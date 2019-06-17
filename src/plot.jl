@@ -172,6 +172,14 @@ function plot(AG, dims;
     end
     set_line_width(cr, 1)
 
+    @inline function flip_angle(angle::Float64)
+        new_angle = angle
+        if angle > (pi / 2) && angle < (3 * pi / 2)
+            new_angle = angle + pi
+        end
+        return new_angle
+    end
+
     ## PLOT VERTICES
     ## -------------
     nv = maximum(vertices(AG.Graph))
@@ -227,10 +235,11 @@ function plot(AG, dims;
             label_border_top = label_origin_y + label_extents[4]
             label_border_bottom = label_origin_y
         end
+
         move_to(cr, center...)
-        rotate(cr, _vertex_angles[i])
-        move_to(cr, label_origin_x, label_origin_y)
-        show_text(cr, text)
+        #move_to(cr, label_origin_x, label_origin_y)
+        rotate(cr, flip_angle(_vertex_angles[i]))
+        rotate(cr, -flip_angle(_vertex_angles[i]))
         plot_border_bottom = max(plot_border_bottom, label_border_bottom)
         plot_border_right = max(plot_border_right, label_border_right)
         plot_border_top = min(plot_border_top, label_border_top)
