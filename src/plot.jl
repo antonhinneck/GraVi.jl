@@ -158,7 +158,7 @@ function plot(AG, dims;
         set_line_width(cr, line_width)
         if AG.VertexTypes[s] == 1 && AG.VertexTypes[d] == 1
             set_line_width(cr, 0.35)
-            set_source_rgb(cr, [76, 156, 255] / 255 ...)
+            set_source_rgb(cr, [0, 49, 191] / 255 ...)
             curve_to(cr, vertex_positions[s][1], vertex_positions[s][2],
                 center[1],
                 center[2],
@@ -195,8 +195,8 @@ function plot(AG, dims;
         circle(cr, pos_x, pos_y, lvl1_node_radius)
         fill(cr)
 
-        set_source_rgb(cr, [0.0,0.0,0.0]...)
-        set_line_width(cr, 0.2)
+        set_source_rgb(cr, [3, 204, 0] / 255 ...)
+        set_line_width(cr, 0.5)
         circle(cr, pos_x, pos_y, lvl1_node_radius)
         stroke(cr)
 
@@ -225,6 +225,7 @@ function plot(AG, dims;
             label_border_bottom = label_origin_y
         end
 
+        set_source_rgb(cr, [0, 0, 0] / 255 ...)
         move_to(cr, label_origin_x, label_origin_y)
         rotate(cr, flip_angle(_vertex_angles[i]))
         show_text(cr, text)
