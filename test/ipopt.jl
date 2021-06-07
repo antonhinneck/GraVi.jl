@@ -1,0 +1,15 @@
+#@constraint(m, distsq1[v1 in verts, v2 in verts], [0.5, -dist, (x[v1] - x[v2]), (y[v1] - y[v2])] in RotatedSecondOrderCone())
+#@constraint(m, distsq1[v1 in verts, v2 in verts], dist^2 <= (x[v1] - x[v2])^2 + (y[v1] - y[v2])^2)
+#@constraint(m, distsq1[v1 in verts, v2 in verts], dist^2 <= (x[v1] - x[v2])^2 + (y[v1] - y[v2])^2)
+@constraint(m, distsq1[v1 in verts, v2 in verts], dist >= 1 * (x[v1] - x[v2])^2 + (W/H) * (y[v1] - y[v2])^2)
+# @constraint(m, distsq2[v1 in verts, v2 in sp_adj[v1]], x[v1] + min_distx <= x[v2])
+# @constraint(m, distsq3[v1 in verts, v2 in sp_adj[v1]], y[v1] + min_disty <= y[v2])
+
+#@constraint(m, distsq3[v1 in verts, v2 in sp_adj[v1], v3 in sp_adj[v1]; v2 > v3], x[v2] == x[v3])
+#@constraint(m, distsq4[v1 in verts, v2 in sp_adj[v1], v3 in sp_adj[v1]; v2 > v3], y[v2] + min_disty <= y[v3])
+#@constraint(m, distsq3[v1 in verts, v2 in sp_adj[v1]], y[v1]  + min_distx <= y[v2])
+# @constraint(m, distsq4[i in 1:(length(seq)-1)], y[seq[i]] + min_disty <= y[seq[i+1]])
+# @constraint(m, distsq5[i in 1:(length(seq)-1)], x[seq[i]] + min_distx <= x[seq[i+1]])
+
+# @constraint(m, distsq4[v1 in verts, v2 in verts], -dist_lin <= x[v1] - x[v2])
+# @constraint(m, distsq5[v1 in verts, v2 in verts], -dist_lin <= x[v2] - x[v1])
