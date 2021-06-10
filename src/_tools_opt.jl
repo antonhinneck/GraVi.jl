@@ -6,7 +6,7 @@ function compute_positions(g, W, H, padding; root = :upperleft, min_distx = 8, m
     sp_adj, sp, seq = bfs(g, initialization = 1)
 
     m = Model(Gurobi.Optimizer)
-    #set_optimizer_attributes(m, "TimeLimit" => 60)
+    set_optimizer_attributes(m, "TimeLimit" => 30)
     #set_optimizer_attributes(m, "mumps_mem_percent" => 64000)
 
     verts = [vertices(g)...]
