@@ -2,7 +2,7 @@ module GraphVisualization
 
 using Cairo, Colors
 using JuMP
-using Gurobi
+using Gurobi, Ipopt
 using LightGraphs #: AbstractSimpleGraph, vertices, degree, edges, src, dst
 
 include("./_main_structs.jl")
@@ -16,7 +16,8 @@ export figure, legend
 export init_figure
 export bfs, max_degree_vertex, inv_fadjlist
 export arrow_head_to
-#export compute_positions
+export compute_positions
+export compute_positions_grid
 export plot
 
 # include("./annotatedgraph.jl")
