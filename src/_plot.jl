@@ -24,7 +24,7 @@ function plot(fig, graph, name, W, H; radius = 2, rect_w = 1, rect_h = 6, root =
         text_h_offset = max_height
     end
 
-    coords = compute_positions(graph, W, H, fig.padding, root = root, x_os = rect_w + text_w_offset / 2, y_os_lwr = rect_h, y_os_gtr = rect_h + text_h_offset)
+    coords = GraphVisualization.compute_positions(graph, W, H, fig.padding, root = root, x_os = rect_w + text_w_offset / 2, y_os_lwr = rect_h, y_os_gtr = rect_h + text_h_offset)
     x_start_offset = get_x_start_offset(graph, coords[1], coords[2])
     xso = 2
 
